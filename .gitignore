@@ -1,0 +1,4 @@
+.venv/
+data/*.csv
+notebbooks/langchain_oracledb/vectorstores/__pycache__/*
+embedding-models/*.onnx
