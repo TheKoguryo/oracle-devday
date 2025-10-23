@@ -1,14 +1,14 @@
 cells:
   - kind: 1
     value: |-
-      # Oracle Database 23ai Vector Search 주요 기능 알아보기
+      # Oracle AI Database 26ai Vector Search 주요 기능 알아보기
 
       우측 아래 **No connection attached**에서 만든 Connection 중에서 vector 유저용을 선택합니다.
     languageId: markdown
   - kind: 1
     value: |-
       ## 1. VECTOR Data Type
-      Oracle Database 23ai에 DB 테이블 칼럼의 데이터 타입으로 VECTOR를 지원에 대해 테스트합니다.
+      Oracle AI Database 26ai에 DB 테이블 칼럼의 데이터 타입으로 VECTOR를 지원에 대해 테스트합니다.
     languageId: markdown
   - kind: 1
     value: 1. 테이블을 생성하고 VECTOR 타입 데이터를 추가합니다.
@@ -217,8 +217,8 @@ cells:
 
       UPDATE rstr_info_external
 
-      SET vector_description=DBMS_VECTOR.UTL_TO_EMBEDDING(description,
-      json(:params));
+      SET vector_description=DBMS_VECTOR.UTL_TO_EMBEDDING(substr(description, 0,
+      240), json(:params));
 
       COMMIT;
     languageId: oracle-sql
@@ -263,11 +263,11 @@ cells:
       */opt/oracle/admin/FREE/dpdump/35CCB862513108F3E0630800580A0E6C*인 경우)
     languageId: markdown
   - kind: 1
-    value: docker exec -it oracle-free-23ai ls -la /opt/oracle/admin/FREE/dpdump/
+    value: docker exec -it oracle-free-26ai ls -la /opt/oracle/admin/FREE/dpdump/
     languageId: markdown
   - kind: 1
     value: docker cp embedding-models/multilingual-e5-small.onnx
-      oracle-free-23ai:/opt/oracle/admin/FREE/dpdump/35CCB862513108F3E0630800580A0E6C
+      oracle-free-26ai:/opt/oracle/admin/FREE/dpdump/35CCB862513108F3E0630800580A0E6C
     languageId: markdown
   - kind: 1
     value: 컨테이너 내부로 복사한 ONNX 파일을 사용하여, 데이터베이스로 임포트합니다.
@@ -506,12 +506,12 @@ cells:
 
       **윈도우 실행창 또는 터미널에서 실행하는 작업입니다**
 
-      윈도우 실행창 또는 터미널에서 다음을 실행하여 oracle-free-23ai 컨테이너에 접속후 변경합니다.
+      윈도우 실행창 또는 터미널에서 다음을 실행하여 oracle-free-26ai 컨테이너에 접속후 변경합니다.
       먼저 INDEX_VECTOR_MEMORY_ADVISOR을 실행하여, 필요량을 예상할 수 있습니다.
     languageId: markdown
   - kind: 2
     value: |-
-      docker exec -it oracle-free-23ai sqlplus /nolog
+      docker exec -it oracle-free-26ai sqlplus /nolog
 
       CONN sys/OracleIsAwesome@FREEPDB1 as sysdba
 
@@ -539,7 +539,7 @@ cells:
       ```
     languageId: markdown
   - kind: 1
-    value: oracle-free-23ai 컨테이너 내부에서 CDB$ROOT의 메모리 풀 크기를 변경합니다. 다음은 512M로 변경하는
+    value: oracle-free-26ai 컨테이너 내부에서 CDB$ROOT의 메모리 풀 크기를 변경합니다. 다음은 512M로 변경하는
       예시입니다. 한꺼번에 실행시 몇 번 엔터키를 누릅니다.
     languageId: markdown
   - kind: 1
@@ -550,13 +550,15 @@ cells:
       SHOW CON_NAME;
       ALTER SYSTEM SET vector_memory_size = 512M SCOPE = SPFILE;
 
-      SHUTDOWN IMMEDIATE
+      SHUTDOWN IMMEDIATE;
       STARTUP
       ```
     languageId: markdown
   - kind: 1
-    value: |-
-      DB 재시작으로 연결이 끊어진 **우측 아래 DB Conection을 클릭하여, 연결 해제 후 다시 연결합니다.**
+    value: >-
+      DB 재시작으로 연결이 끊어졌습니다. SQL 노트북 **우측 아래 DB Conection을 클릭하여, 연결 해제 후 다시
+      연결합니다.**
+
 
       메모리 풀이 변경이 되었는지 다시 확인합니다. 
     languageId: markdown
@@ -929,14 +931,14 @@ cells:
       REGEXP_COUNT (rstr.description, '주차|화장실') AS cnt
         FROM (SELECT DBMS_HYBRID_VECTOR.SEARCH (JSON (
                          '{
-                              "hybrid_index_name": "rstr_info_hybrid_idx",
+                              "hybrid_index_name": "rstr_info_hybrid_idx_external_2",
                               "search_scorer": "rsf",
-                              "search_fusion": "INTERSECT",
+
                               "vector": {
-                                  "search_text": "다국어 메뉴판이 있는 여의도 맛집"
+                                  "search_text": "맛집"
                               },                        
                               "text": {
-                                  "contains": "$주차 and $화장실"
+                                  "contains": "$위생"
                               },
                               "return": {
                                   "values": ["rowid", "score", "vector_score", "text_score"],
@@ -950,7 +952,7 @@ cells:
                            , vector_score NUMBER       PATH '$.vector_score'
                            , text_score   NUMBER       PATH '$.text_score'
                          )) b
-           , rstr_info rstr
+           , rstr_info_external rstr
        WHERE rstr.rowid = b.rid;  
     languageId: oracle-sql
   - kind: 1

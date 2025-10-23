@@ -1,4 +1,5 @@
 bs4
 langchain_community
 langchain-ollama
-oracledb
+langchain-oci
+langchain-oracledb

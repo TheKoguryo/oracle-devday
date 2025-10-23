@@ -1,11 +1,8 @@
-# Prepare Enviroment
+# Prepare Environment
 
-```
+```bash
 # resize boot volume
 sudo /usr/libexec/oci-growfs -y
-
-# git
-sudo yum install -y git
 
 # docker
 sudo yum install -y yum-utils
@@ -20,20 +17,23 @@ sudo usermod -aG docker $USER
 newgrp docker
 
 docker run hello-world
-docker pull container-registry.oracle.com/database/free:latest
+docker pull container-registry.oracle.com/database/free:23.26.0.0
 
 # ollama
 curl -fsSL https://ollama.com/install.sh | sh
 ollama pull paraphrase-multilingual:latest
+
 ollama pull llama3.1
 # CPU Only
-ollama run llama3.2
-ollama run llama3.2:1b
+ollama pull llama3.2
+ollama pull llama3.2:1b
 
 # python
 sudo yum install -y python3.11
-sudo update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 2
 sudo yum install python3-pip -y
-python -m ensurepip
-pip install --upgrade pip
+python3.11 -m ensurepip
+pip3.11 install --upgrade pip
+
+# git
+sudo yum install -y git
 ```
