@@ -24,7 +24,8 @@ curl -fsSL https://ollama.com/install.sh | sh
 ollama pull paraphrase-multilingual:latest
 
 ollama pull llama3.1
-# CPU Only
+
+## Laptop - CPU Only
 ollama pull llama3.2
 ollama pull llama3.2:1b
 
@@ -33,6 +34,13 @@ sudo yum install -y python3.11
 sudo yum install python3-pip -y
 python3.11 -m ensurepip
 pip3.11 install --upgrade pip
+
+cat <<EOF >> ~/.bash_profile
+alias pip='pip3.11'
+alias python='python3.11'
+EOF
+
+source ~/.bash_profile
 
 # git
 sudo yum install -y git
