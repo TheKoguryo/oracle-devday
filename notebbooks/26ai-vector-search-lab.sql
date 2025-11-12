@@ -1,0 +1,60 @@
+-- SQLcl에 실행하는 작업입니다
+
+-- DATAGO_SEOUL_2022.RSTR_INFO_KOREAN_10000_paraphrase-multilingual.csv 파일에서 vector_description 칼럼은
+-- 이미, ollama상의 paraphrase-multilingual 모델을 통해 이미 임베딩된 값이 포함되어 있습니다.
+
+pwd
+cd ~
+cd oracle-devday/data
+
+DROP TABLE rstr_info;
+DROP TABLE menu_info;
+
+CREATE TABLE VECTOR.RSTR_INFO
+(
+  ID NUMBER(7),
+  NAME VARCHAR2(128),
+  BRANCH_NAME VARCHAR2(128),
+  ADDRESS VARCHAR2(128),
+  LAND_LOT_ADDRESS VARCHAR2(128),
+  LATITUDE NUMBER(11, 7),
+  LONGITUDE NUMBER(12, 7),
+  PHONE_NUMBER VARCHAR2(30),
+  BUSINESS_TYPE_REGISTERED VARCHAR2(50),
+  BUSINESS_LICENSE_TYPE VARCHAR2(50),
+  DESCRIPTION VARCHAR2(1024),
+  VECTOR_DESCRIPTION VECTOR
+);
+
+LOAD rstr_info DATAGO_SEOUL_2022.RSTR_INFO_KOREAN_10000_paraphrase-multilingual.csv show;
+LOAD rstr_info DATAGO_SEOUL_2022.RSTR_INFO_KOREAN_10000_paraphrase-multilingual.csv;
+
+CREATE TABLE VECTOR.MENU_INFO
+(
+  MENU_ID NUMBER(7),
+  MENU_NAME VARCHAR2(128),
+  MENU_PRICE NUMBER(10),
+  IS_LOCAL_SPECIALTY NUMBER(3),
+  LOCAL_SPECIALTY_NAME VARCHAR2(50),
+  LOCAL_SPECIALTY_SOURCE_URL VARCHAR2(128),
+  REGION_NAME VARCHAR2(50),
+  RESTAURANT_ID NUMBER(7),
+  RESTAURANT_NAME VARCHAR2(128),
+  BRANCH_NAME VARCHAR2(50)
+);
+
+LOAD menu_info DATAGO_SEOUL_2022.MENU_INFO_KOREAN_100000.csv show;
+LOAD menu_info DATAGO_SEOUL_2022.MENU_INFO_KOREAN_100000.csv;
+
+-- SQLcl에서 실행합니다
+
+DROP TABLE rstr_info_external;
+DROP TABLE rstr_info_internal;
+
+LOAD rstr_info_external DATAGO_SEOUL_2022.RSTR_INFO_KOREAN_TEST.csv new;
+LOAD rstr_info_internal DATAGO_SEOUL_2022.RSTR_INFO_KOREAN_TEST.csv new;
+ALTER TABLE rstr_info_external ADD vector_description VECTOR;
+ALTER TABLE rstr_info_internal ADD vector_description VECTOR;
+
+-- 외부에서 로드되어 VECTOR 타입에 잘 로딩되었는지 확인합니다.
+SELECT id, name, vector_description from rstr_info WHERE rownum<=5;

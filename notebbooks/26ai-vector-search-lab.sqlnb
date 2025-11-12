@@ -78,6 +78,8 @@ cells:
       ```
 
       다음 Cell을 우클릭하여, Copy Cell을 클릭하여, 복사하여 SQLcl에서 실행합니다.
+
+      -> [SQL 파일로 이동하기](26ai-vector-search-lab.sql:6)
     languageId: markdown
   - kind: 1
     value: >-
@@ -931,14 +933,14 @@ cells:
       REGEXP_COUNT (rstr.description, '주차|화장실') AS cnt
         FROM (SELECT DBMS_HYBRID_VECTOR.SEARCH (JSON (
                          '{
-                              "hybrid_index_name": "rstr_info_hybrid_idx_external_2",
+                              "hybrid_index_name": "rstr_info_hybrid_idx",
                               "search_scorer": "rsf",
-
+                              "search_fusion": "INTERSECT",
                               "vector": {
-                                  "search_text": "맛집"
+                                  "search_text": "다국어 메뉴판이 있는 여의도 맛집"
                               },                        
                               "text": {
-                                  "contains": "$위생"
+                                  "contains": "$주차 and $화장실"
                               },
                               "return": {
                                   "values": ["rowid", "score", "vector_score", "text_score"],
@@ -952,8 +954,8 @@ cells:
                            , vector_score NUMBER       PATH '$.vector_score'
                            , text_score   NUMBER       PATH '$.text_score'
                          )) b
-           , rstr_info_external rstr
-       WHERE rstr.rowid = b.rid;  
+           , rstr_info rstr
+       WHERE rstr.rowid = b.rid;
     languageId: oracle-sql
   - kind: 1
     value: "## 기타 참고사항"
