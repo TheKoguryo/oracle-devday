@@ -4,3 +4,5 @@ langchain-oci
 langchain-oracledb
 streamlit==1.37.0
 streamlit-authenticator==0.4.2
+openai
+langchain-openai

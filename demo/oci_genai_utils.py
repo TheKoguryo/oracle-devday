@@ -1,5 +1,5 @@
 import oci
-from langchain_community.chat_models import ChatOCIGenAI
+
 import sys
 import oracledb
 import os
@@ -9,6 +9,14 @@ from langchain_oracledb.vectorstores import OracleVS
 
 from langchain_oci import OCIGenAIEmbeddings
 from langchain_oci import ChatOCIGenAI
+from langchain_oci import ChatOCIOpenAI
+
+import oci_openai
+from oci_openai import (
+    OciInstancePrincipalAuth,
+    OciResourcePrincipalAuth,
+    OciSessionAuth,
+)
 
 from langchain_community.vectorstores.utils import DistanceStrategy
 from typing import List
@@ -81,7 +89,7 @@ def initialize():
                 wallet_location=DB_WALLET_LOCATION,
                 wallet_password=DB_WALLET_PASSWORD)
             
-            print("Oracle 23ai Autonomous Database Connection successful!")
+            print("Oracle 26ai Autonomous Database Connection successful!")
         else:
             conn = oracledb.connect(user=DB_USERNAME, password=DB_PASSWORD, dsn=DB_DSN)
             
@@ -128,10 +136,12 @@ def list_chat_models(region_name):
         compartment_id=COMPARTMENT_ID,
         limit=100)
     
+    #print(list_models_response.data)
+    
     models = [];
 
     for item in list_models_response.data.items:
-        if "CHAT" in item.capabilities and item.time_deprecated is None and item.lifecycle_details == "Creating Base Model":
+        if len(item.capabilities) == 1 and "CHAT" in item.capabilities and item.time_deprecated is None and item.vendor != 'openai':
             models.append(item)
 
     sorted_models = sorted(models, key=lambda k: k.display_name, reverse=True)
@@ -183,15 +193,24 @@ def chat(user_question, region_name, model):
     print(model_id)
 
     # 단계 1: LLM(언어모델 생성)
-    llm = ChatOCIGenAI(
-        model_id=model_id,
-        service_endpoint=endpoint,
-        compartment_id=COMPARTMENT_ID,
-        provider=model_vendor,
-        model_kwargs={"temperature": 0},
-        auth_type=AUTH_TYPE,
-        #auth_profile=CONFIG_PROFILE
-    )
+    if model_vendor == 'openai':
+        llm = ChatOCIOpenAI(
+            auth=OciInstancePrincipalAuth(),
+            compartment_id=COMPARTMENT_ID,
+            model=model_id,
+            service_endpoint=endpoint,
+            store=False
+        )
+    else:
+        llm = ChatOCIGenAI(
+            model_id=model_id,
+            service_endpoint=endpoint,
+            compartment_id=COMPARTMENT_ID,
+            provider=model_vendor,
+            model_kwargs={"temperature": 0},
+            auth_type=AUTH_TYPE,
+            #auth_profile=CONFIG_PROFILE
+        )
 
     # 단계 2: LLM(언어모델 생성)에 질의
     response = llm.invoke(user_question)

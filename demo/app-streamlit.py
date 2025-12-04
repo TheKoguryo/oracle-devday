@@ -36,6 +36,10 @@ st.markdown(
         visibility: hidden;
         width: 0;
     }
+    div[data-testid="chatAvatarIcon-user"] {
+        visibility: hidden;
+        width: 0;
+    }
 
     div[data-testid="stSidebarHeader"] {
         height: 2rem;
@@ -68,13 +72,40 @@ st.markdown(
         justify-content: right;
     }
 
+    div[data-testid="stChatMessageContent"] div[aria-label="Chat message from user"] div[data-testid="stMarkdownContainer"] p {
+        justify-content: right;
+    }
+
+    div[aria-label="Chat message from assistant"] div[data-testid="stMarkdown"] div[data-testid="stMarkdownContainer"] p {
+        display: flex;
+        justify-content: left;
+        align-items: left;
+    }
+
+    div[aria-label="Chat message from user"] div[data-testid="stMarkdown"] div[data-testid="stMarkdownContainer"] p {
+        display: flex;
+        justify-content: right;
+        align-items: right;
+    }
+
     div[data-testid="stMainBlockContainer"] div.st-emotion-cache-1fee4w7 {
         margin-left: auto;
         margin-right: 0;
         width: max-content;
         padding: 0.5rem;
         border-radius: 1.25rem;
-    }      
+    }
+
+    div[data-testid="stChatMessage"] div[aria-label="Chat message from user"] div.st-emotion-cache-uzeiqp p {
+        margin-left: auto;
+        margin-right: 0;
+        width: max-content;
+        padding: 0.25rem;
+        border-radius: 1rem;
+        background-color: beige;
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }         
 </style>
 """,
     unsafe_allow_html=True,
@@ -152,14 +183,22 @@ if st.session_state.get('authentication_status'):
         st.subheader("샘플 질문 예시")
 
         sample_questions = [
-            "한국이 구축 예정인 AI 데이터 센터 규모, 예산은 어떻게 되나요?",
-            "글로벌 소프트웨어 기업의 오픈 소스 기여는 어떻게 되나요? 오라클의 오픈소스 기여순위는 얼마나 되나요?",        
+            """한국이 구축 예정인 AI 데이터 센터 규모, 예산은
+어떻게 되나요?""",
+            """글로벌 소프트웨어 기업의 오픈 소스 기여는 어떻게 되나요?
+오라클의 오픈소스 기여순위는 얼마나 되나요?""",
             "삼성전자가 자체 개발한 AI 의 이름은?",
         ]
 
-        for q in sample_questions:
-            if st.button(q):
-                st.session_state.user_input = q
+        #for q in sample_questions:
+            #if st.button(q):
+                #st.session_state.user_input = q
+            #st.code(q, language=None)
+
+        with st.container():
+            for q in sample_questions:
+                st.code(q, language="python")           
+            
 
     with tab2:
         st.header('인덱싱 / 추가 문서 업로드')
@@ -206,7 +245,7 @@ if st.session_state.get('authentication_status'):
                 st.success("문서 추가 및 인덱싱 완료되었습니다!")
 
     # Title displayed on the streamlit web app
-    st.title(f""":green[OCI Generative AI Chat]""")
+    #st.title(f""":green[OCI Generative AI Chat]""")
 
     # configuring values for session state
     if "messages" not in st.session_state:
@@ -222,7 +261,7 @@ if st.session_state.get('authentication_status'):
     #st.balloons()
 
     # evaluating st.chat_input and determining if a question has been input
-    if question := st.chat_input("메시지 입력", key="user_input"):
+    if question:= st.chat_input("메시지 입력", key="user_input"):
 
         # with the user icon, write the question to the front end
         with st.chat_message("user"):
