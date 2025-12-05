@@ -141,7 +141,10 @@ def list_chat_models(region_name):
     models = [];
 
     for item in list_models_response.data.items:
-        if len(item.capabilities) == 1 and "CHAT" in item.capabilities and item.time_deprecated is None and item.vendor != 'openai':
+        if item.vendor != 'meta' and item.vendor != 'cohere':
+            continue
+
+        if len(item.capabilities) == 1 and "CHAT" in item.capabilities and item.time_deprecated is None:
             models.append(item)
 
     sorted_models = sorted(models, key=lambda k: k.display_name, reverse=True)
